@@ -32,8 +32,6 @@ The Car Microservices project is developed to showcase the implementation of a m
 - Description: Voiture service managing car-related operations.
 - Technologies: Spring Boot, Java, MySQL.
 
-![Car Microservices Architecture](https://miro.medium.com/v2/resize:fit:720/format:webp/1*43NgBoAW6h-vZTgyknM8xw.png)
-```
 
 ## Getting Started
 
