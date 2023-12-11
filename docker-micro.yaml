@@ -1,0 +1,81 @@
+version: '3'
+networks:
+    datapipeline:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: "172.18.0.0/16"
+
+services:
+  eureka-server:
+    image: eureka-server:latest
+    container_name: eureka-server
+    hostname: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+        datapipeline:
+          ipv4_address: 172.18.0.2
+    restart: always
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    hostname: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: spring
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./mysql:/var/lib/mysql
+    networks:
+       datapipeline:
+         ipv4_address: 172.18.0.3
+    restart: always
+
+  gateway:
+    image: gateway:latest
+    container_name: gateway
+    hostname: gateway
+    ports:
+      - "8888:8888"
+    networks:
+       datapipeline:
+         ipv4_address: 172.18.0.4
+    depends_on:
+      - eureka-server
+    restart: always
+
+  service-client:
+    image: client:latest
+    container_name: service-client
+    hostname: service-client
+    ports:
+      - "8088:8088"
+    networks:
+       datapipeline:
+         ipv4_address: 172.18.0.5
+    depends_on:
+      - eureka-server
+      - gateway
+      - mysql
+    restart: always
+
+  service-voiture:
+    image: voiture:latest
+    container_name: service-voiture
+    hostname: service-voiture
+    ports:
+      - "8089:8089"
+    networks:
+       datapipeline:
+         ipv4_address: 172.18.0.6
+    depends_on:
+      - eureka-server
+      - mysql
+      - service-client
+    restart: always
